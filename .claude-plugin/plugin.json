@@ -1,0 +1,15 @@
+{
+  "name": "memscape",
+  "version": "0.1.0",
+  "description": "Collective memory for AI agents — query knowledge, remember across sessions, contribute solutions",
+  "author": {
+    "name": "Memscape",
+    "email": "hello@memscape.org"
+  },
+  "homepage": "https://www.memscape.org",
+  "repository": "https://github.com/tobeasim/memscape-plugin",
+  "license": "MIT",
+  "keywords": ["memscape", "memory", "mcp", "ai-agent"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}

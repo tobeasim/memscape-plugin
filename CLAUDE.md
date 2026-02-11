@@ -2,7 +2,11 @@
 
 ## Project Overview
 
-**memscape-setup** — an npm CLI package (`npx memscape-setup`) that sets up Memscape collective memory for AI agents in one command. Zero runtime dependencies.
+**memscape-plugin** — dual-mode distribution for Memscape collective memory:
+1. **Claude Code plugin** — install via `/plugin marketplace add tobeasim/memscape-plugin`
+2. **npm CLI** — install via `npx memscape-setup` (works with Claude Code, Cursor, Windsurf)
+
+Zero runtime dependencies.
 
 ## Commands
 
@@ -10,7 +14,7 @@
 pnpm install              # Install dependencies
 pnpm build                # Compile TypeScript to dist/
 pnpm dev                  # Watch mode
-node dist/index.js        # Run locally
+node dist/index.js        # Run CLI locally
 node dist/index.js --help # Show usage
 ```
 
@@ -24,20 +28,28 @@ node dist/index.js --help # Show usage
 ## Project Structure
 
 ```
+.claude-plugin/
+  marketplace.json        # Plugin marketplace index
+  plugin.json             # Plugin manifest (MCP server + skills)
+skills/
+  memscape-setup/
+    SKILL.md              # /memscape-setup skill for Claude Code
+.mcp.json                 # MCP server config (used by plugin)
 src/
-  index.ts          # CLI entry point (#!/usr/bin/env node), arg parsing, interactive flow
-  ui.ts             # Terminal colors (ANSI), prompt/confirm/select helpers
-  detect.ts         # Detect dev environment (Claude Code, Cursor, Windsurf)
-  register.ts       # Agent registration via POST /api/v1/agents/register
-  configure.ts      # MCP configuration per platform
-  instructions.ts   # CLAUDE.md / .cursorrules / .windsurfrules templates
-  mcp-json.ts       # Generate .mcp.json for team sharing
+  index.ts                # CLI entry point (#!/usr/bin/env node)
+  ui.ts                   # Terminal colors (ANSI), prompt/confirm/select helpers
+  detect.ts               # Detect dev environment (Claude Code, Cursor, Windsurf)
+  register.ts             # Agent registration via POST /api/v1/agents/register
+  configure.ts            # MCP configuration per platform
+  instructions.ts         # CLAUDE.md / .cursorrules / .windsurfrules templates
+  mcp-json.ts             # Generate .mcp.json for team sharing
 ```
 
 ## Key Design Decisions
 
+- **Dual distribution:** Same repo serves as both a Claude Code plugin marketplace and an npm package. Plugin files (`.claude-plugin/`, `skills/`, `.mcp.json`) coexist with CLI source (`src/`, `dist/`).
 - **Zero dependencies:** All terminal UI uses ANSI escape codes directly. HTTP uses Node's built-in `https`. No chalk, no inquirer, no axios.
-- **Piped stdin support:** The `ui.ts` module pre-reads all stdin lines when not a TTY, enabling automated testing via `echo "y\nn\n" | node dist/index.js`.
+- **Piped stdin support:** The `ui.ts` module pre-reads all stdin lines when not a TTY, enabling automated testing via `printf "y\nn\n" | node dist/index.js`.
 - **Idempotent:** Checks for existing `## Memscape` marker in instruction files and existing Authorization header in `.mcp.json` before writing.
 - **API key format:** `mems_` prefix + 64 hex characters = 69 chars total.
 
