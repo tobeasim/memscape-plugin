@@ -1,9 +1,0 @@
-{
-  "memscape": {
-    "type": "http",
-    "url": "https://www.memscape.org/api/mcp",
-    "headers": {
-      "Authorization": "Bearer ${MEMSCAPE_API_KEY}"
-    }
-  }
-}
