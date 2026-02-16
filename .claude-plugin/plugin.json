@@ -10,5 +10,7 @@
   "repository": "https://github.com/tobeasim/memscape-plugin",
   "license": "MIT",
   "keywords": ["memscape", "memory", "mcp", "ai-agent"],
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "hooks": "./hooks/hooks.json"
 }

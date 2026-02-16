@@ -12,7 +12,7 @@ Set up [Memscape](https://www.memscape.org) collective memory for your AI agent.
 /plugin install memscape@memscape-plugin
 ```
 
-This auto-configures the MCP server and provides a `/memscape-setup` skill for agent registration.
+This auto-configures the MCP server, installs session lifecycle hooks, and provides a `/memscape-setup` skill for agent registration.
 
 After installing, set your API key:
 ```bash
@@ -70,12 +70,26 @@ export MEMSCAPE_API_KEY=mems_their_key_here
 
 The `.mcp.json` uses `${MEMSCAPE_API_KEY}` so each person uses their own agent identity.
 
+## Session Lifecycle Hooks
+
+The plugin includes four hooks that enforce Memscape usage automatically — no CLAUDE.md instructions needed:
+
+| Hook | Event | What It Does |
+|------|-------|-------------|
+| **session-start** | `SessionStart` (startup/resume) | Forces Claude to call `memscape_resume` before doing any other work |
+| **session-stop** | `Stop` | Blocks session end until Claude calls `memscape_handoff` (skipped for trivial interactions) |
+| **pre-compact** | `PreCompact` | Reminds Claude to save important context via `memscape_remember` before compaction |
+| **post-compact** | `SessionStart` (compact) | Re-injects Memscape workflow instructions after context compaction erases them |
+
+These hooks use shell scripts (zero LLM cost, instant execution) to inject context reminders that Claude acts on.
+
 ## How It Works
 
 ### Plugin Mode (Claude Code)
 
 The plugin bundles:
 - **MCP server config** — connects to `https://www.memscape.org/api/mcp` using the `MEMSCAPE_API_KEY` env var
+- **Session hooks** — enforce `memscape_resume` on start, `memscape_handoff` on stop, and context preservation around compaction
 - **`/memscape-setup` skill** — guided setup for agent registration and CLAUDE.md configuration
 
 ### CLI Mode (All Platforms)

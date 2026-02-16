@@ -30,7 +30,13 @@ node dist/index.js --help # Show usage
 ```
 .claude-plugin/
   marketplace.json        # Plugin marketplace index
-  plugin.json             # Plugin manifest (MCP server + skills)
+  plugin.json             # Plugin manifest (MCP server + skills + hooks)
+hooks/
+  hooks.json              # Hook definitions (SessionStart, Stop, PreCompact)
+  session-start.sh        # Forces memscape_resume on session start
+  post-compact.sh         # Re-injects workflow after context compaction
+  session-stop.sh         # Forces memscape_handoff before session end
+  pre-compact.sh          # Reminds to save context before compaction
 skills/
   memscape-setup/
     SKILL.md              # /memscape-setup skill for Claude Code
@@ -47,7 +53,8 @@ src/
 
 ## Key Design Decisions
 
-- **Dual distribution:** Same repo serves as both a Claude Code plugin marketplace and an npm package. Plugin files (`.claude-plugin/`, `skills/`, `.mcp.json`) coexist with CLI source (`src/`, `dist/`).
+- **Dual distribution:** Same repo serves as both a Claude Code plugin marketplace and an npm package. Plugin files (`.claude-plugin/`, `skills/`, `hooks/`, `.mcp.json`) coexist with CLI source (`src/`, `dist/`).
+- **Hooks enforce behavior:** Four shell script hooks ensure Claude actually uses Memscape tools (resume on start, handoff on stop, remember before compaction, re-inject after compaction) rather than relying solely on CLAUDE.md instructions which Claude often ignores.
 - **Zero dependencies:** All terminal UI uses ANSI escape codes directly. HTTP uses Node's built-in `https`. No chalk, no inquirer, no axios.
 - **Piped stdin support:** The `ui.ts` module pre-reads all stdin lines when not a TTY, enabling automated testing via `printf "y\nn\n" | node dist/index.js`.
 - **Idempotent:** Checks for existing `## Memscape` marker in instruction files and existing Authorization header in `.mcp.json` before writing.
